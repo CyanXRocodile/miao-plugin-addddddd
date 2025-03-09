@@ -33,6 +33,7 @@ const ProfileChange = {
     let ret = {}
     let change = {}
     let char = Character.get(lodash.trim(regRet[2]).replace(/\d{9,10}/g, ''), game)
+    if (char.isTraveler) this.isTraveler = true
     game = char.isSr ? 'sr' : 'gs'
     if (!char) {
       return false
@@ -162,7 +163,7 @@ const ProfileChange = {
       // 行迹树匹配
       let treeRet = /满行迹/.exec(txt)
       if (!isGs && treeRet) {
-        char.trees = ['101', '102', '103', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210']
+        char.trees = ['101', '102', '103', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '301', '302']
         txt = txt.replace(treeRet[0], '')
       }
 
@@ -185,9 +186,11 @@ const ProfileChange = {
       }
       txt = lodash.trim(txt)
       if (txt) {
+        if (this.isTraveler) txt = txt.replace(/元素/, '主')
         let chars = Character.get(txt, game)
         if (chars) {
           char.char = chars.id
+          char.elem = chars.elem
         }
       }
       if (!lodash.isEmpty(char)) {
@@ -221,7 +224,7 @@ const ProfileChange = {
       source = {}
     }
 
-    let char = Character.get(dc?.char || source.id || charid)
+    let char = Character.get({ id: dc?.char || source.id || charid, elem: dc?.elem })
     if (!char) {
       return false
     }
@@ -253,7 +256,7 @@ const ProfileChange = {
       level,
       cons: Data.def(dc.cons, source.cons, 0),
       fetter: source.fetter || 10,
-      elem: source.char?.elem || char.elem,
+      elem: char.elem || source.char?.elem,
       dataSource: 'change',
       _source: 'change',
       promote,
